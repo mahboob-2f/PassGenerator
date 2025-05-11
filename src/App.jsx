@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 function App() {
   const [length,setLength]  = useState(8);
@@ -6,6 +6,16 @@ function App() {
   const [allowedChar,setAllowedChar]= useState(false);
 
   const [Password,setPassword] = useState("");
+
+
+  const passwordRef = useRef(null);
+
+  const passwordCopyToClipboard = useCallback(()=>{
+    passwordRef.current?.select();                     //      will select the current passwordRef value
+   // passwordRef.current?.setSelectionRange(0,5);         //    will select only from 0 to 5 characters only 
+    window.navigator.clipboard.writeText(Password);
+  },[Password])
+
 
   const passGenerator=useCallback(()=>{
     let pass="";
@@ -19,16 +29,22 @@ function App() {
       let ind = Math.floor(Math.random() * str.length);
       pass += str[ind];
     }
-    console.log(pass);
+    // console.log(pass);
 
     setPassword(pass);
 
 
-  },[length,allowedChar,allowedNumber,setPassword]);
+  },[length,allowedChar,allowedNumber,setPassword ]);
   // passGenerator();
-  function handleClick(){
-    console.log(allowedChar);
-  }
+
+  useEffect(
+    ()=>{passGenerator()},
+    [length,allowedChar,allowedNumber,setPassword]);
+
+
+  // function handleClick(){
+  //   console.log(allowedChar);
+  // }
  
  
   return (
@@ -38,8 +54,8 @@ function App() {
       <div className="w-full max-w-[600px] mx-auto bg-gray-700 mt-20 rounded-lg px-4 ">
          <h1 className="text-white text-3xl capitalize text-center font-[serif] font-[500] pt-8">Password Generator</h1>  
         <div className="py-4 px-4 mt-4 pb-8 flex justify-center "> 
-          <input className="outline-none bg-white w-full px-4 py-2 rounded-l-lg text-xl text-black font-bold capitalize" type="text" placeholder="password" readOnly value={Password}/>
-          <button className="text-xl bg-[blue] px-3  font-bold capitalize rounded-r-lg cursor-pointer ">copy</button>
+          <input ref={passwordRef}  className="outline-none bg-white w-full px-4 py-2 rounded-l-lg text-xl text-black font-bold capitalize" type="text" placeholder="password" readOnly value={Password} />
+          <button onClick={passwordCopyToClipboard} className="text-xl bg-[blue] px-3  font-bold capitalize rounded-r-lg cursor-pointer hover:bg-blue-600 hover:text-[#cac6c6]  transition-all duration-200">copy</button>
         </div>
 
         <div className="flex gap-x-4 items-center justify-center ">
@@ -56,7 +72,7 @@ function App() {
           </div>
 
           <div className="flex items-center py-4 gap-x-2">
-            <input className="w-[15px] h-[15px] "  type="checkbox" defaultChecked={allowedChar} onClick={handleClick} id="charInput" onChange={()=>setAllowedChar(prev=>!prev)} />
+            <input className="w-[15px] h-[15px] "  type="checkbox" defaultChecked={allowedChar}   id="charInput" onChange={()=>setAllowedChar(prev=>!prev)} />
             <label className="text-lg font-[500]   text-white" htmlFor="charInput">Characters</label>
           </div>
 
